@@ -17,7 +17,7 @@
             <slot name="selected-option" v-bind="normalizeOptionForSlot(option)">
               {{ getOptionLabel(option) }}
             </slot>
-            <button v-if="multiple" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" aria-label="Deselect option" ref="deselectButtons">
+            <button v-if="multiple || blockSelect" :disabled="disabled" @click="deselect(option)" type="button" class="vs__deselect" aria-label="Deselect option" ref="deselectButtons">
               <component :is="childComponents.Deselect" />
             </button>
           </span>
@@ -511,6 +511,30 @@
          * @return {Object}
          */
         default: (map, vm) => map,
+      },
+      /** 
+       * Used to revert the selection to the search value
+       * when a delete key is pressed
+       */
+      returnSelectionToInput: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Used to revert the selection to the search value
+       * when the search query continues beyond selection
+       */
+      continueSelectionOnInput: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Sets selection to tag blocks even when not in
+       * multiple select mode
+       */
+      blockSelect: {
+        type: Boolean,
+        default: false,
       }
     },
 
@@ -765,6 +789,12 @@
        * @return {this.value}
        */
       maybeDeleteValue() {
+        if (!this.searchEl.value.length && this.selectedValue.length && this.returnSelectionToInput) {
+          let value = null
+          this.search = this.getOptionLabel(this.selectedValue[0])
+          this.searchEl.value = this.search
+          this.updateValue(value)
+        }
         if (!this.searchEl.value.length && this.selectedValue && this.clearable) {
           let value = null;
           if (this.multiple) {
@@ -919,6 +949,13 @@
         if (typeof handlers[e.keyCode] === 'function') {
           return handlers[e.keyCode](e);
         }
+        console.log(this.selectedValue)
+        if (this.selectedValue.length && this.continueSelectionOnInput) {
+          let value = null
+          this.search = this.getOptionLabel(this.selectedValue[0])
+          this.searchEl.value = this.search
+          this.updateValue(value)
+        }
       }
     },
 
@@ -1036,7 +1073,7 @@
       stateClasses() {
         return {
           'vs--open': this.dropdownOpen,
-          'vs--single': !this.multiple,
+          'vs--single': !this.multiple && !this.blockSelect,
           'vs--searching': this.searching && !this.noDrop,
           'vs--searchable': this.searchable && !this.noDrop,
           'vs--unsearchable': !this.searchable,
