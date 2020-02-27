@@ -535,6 +535,10 @@
       blockSelect: {
         type: Boolean,
         default: false,
+      },
+      useValueAsInitial: {
+        type: Boolean,
+        default: false,
       }
     },
 
