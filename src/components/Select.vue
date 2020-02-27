@@ -949,7 +949,6 @@
         if (typeof handlers[e.keyCode] === 'function') {
           return handlers[e.keyCode](e);
         }
-        console.log(this.selectedValue)
         if (this.selectedValue.length && this.continueSelectionOnInput) {
           let value = null
           this.search = this.getOptionLabel(this.selectedValue[0])
