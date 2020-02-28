@@ -536,10 +536,6 @@
         type: Boolean,
         default: false,
       },
-      useValueAsInitial: {
-        type: Boolean,
-        default: false,
-      }
     },
 
     data() {
@@ -952,6 +948,9 @@
 
         if (typeof handlers[e.keyCode] === 'function') {
           return handlers[e.keyCode](e);
+        }
+        if (this.continueSelectionOnInput && e.keyCode === 46) {
+          return
         }
         if (this.selectedValue.length && this.continueSelectionOnInput) {
           let value = null
